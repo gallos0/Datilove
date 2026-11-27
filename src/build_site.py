@@ -6,7 +6,7 @@ Saída: /home/claude/site/out
 """
 import base64, re, sys, os, time, zipfile, shutil
 
-BASE = (sys.argv[1] if len(sys.argv) > 1 else "https://gallos0.github.io/datilove/").rstrip("/") + "/"
+BASE = (sys.argv[1] if len(sys.argv) > 1 else "https://gallos0.github.io/Datilove/").rstrip("/") + "/"
 APP_URL = BASE + "app/"
 SRC = "/home/claude/datilove/index.html"
 FONTS = "/home/claude/build/node_modules/@fontsource/"
