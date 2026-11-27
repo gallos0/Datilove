@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Datilove</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Cutive+Mono&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet, nocturnal, tactile — a writing room at night.
+   IDEA: the front of a typewriter: paper rising from the platen, a type guide riding a chrome rail.
+   PICTURE: the lit sheet itself; a cone of light from the type guide shows where the next letter lands.
+   COLOUR and TYPE: black room, yellowed paper, pewter guide, cold white lamp; Special Elite / Courier Prime / Cutive Mono.
+   LAYOUT: full-bleed stage; paper above the rail, a dark base with status and controls below. */
+:root{color-scheme:dark;--fs:20px;--cw:12px;--lh:38px;--paperTop:120px;--railY:700px;--bot:140px;--tl:200px;
+  --font:'Special Elite';--paper:#f3efe6;--paperHi:#fbf9f4;--age:rgba(150,125,80,.07);
+  --k0:#1c1915;--k1:#1d2a52;--k2:#7c1d17}
+body[data-paper=creme]{--paper:#efe7d3;--paperHi:#f8f3e6;--age:rgba(150,118,60,.12)}
+body[data-paper=velha]{--paper:#e2d1a6;--paperHi:#eee2c2;--age:rgba(130,90,30,.26)}
+body[data-paper=branca]{--paper:#f8f8f5;--paperHi:#ffffff;--age:rgba(110,100,80,.03)}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:#050505;color:#b9ad93;overflow:hidden;font:15px/1.5 'Courier Prime',ui-monospace,monospace}
+#stage{position:fixed;inset:0;user-select:none;-webkit-user-select:none;cursor:text}
+.back{position:absolute;left:5%;right:5%;top:calc(var(--paperTop)*.3);height:calc(var(--paperTop)*.9 + 40px);border-radius:18px 18px 0 0;background:linear-gradient(#151412,#0b0b0a);box-shadow:0 -1px 0 #222 inset}
+.mark{position:absolute;left:0;right:0;top:calc(var(--paperTop)*.3 + 10px);text-align:center;font:italic 700 clamp(13px,1.4vw,17px)/1 'Courier Prime',monospace;color:#6d5c3c;letter-spacing:.02em;opacity:.85}
+.mark b{color:#8a7247;font-weight:700}
+#paper{position:absolute;left:12px;right:12px;top:var(--paperTop);height:calc(var(--railY) - var(--paperTop));overflow:hidden;
+  border-radius:calc(var(--fs)*3.2) calc(var(--fs)*3.2) 0 0;
+  background:
+   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .3 0 0 0 0 .26 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"),
+   radial-gradient(55% 45% at 86% 88%,var(--age),transparent 70%),
+   radial-gradient(38% 32% at 10% 64%,var(--age),transparent 70%),
+   radial-gradient(30% 22% at 62% 30%,var(--age),transparent 75%),
+   var(--paper);
+  box-shadow:inset 0 0 70px rgba(80,65,40,.22),inset 0 -2px 6px rgba(0,0,0,.4)}
+.bend{position:absolute;left:0;right:0;top:0;height:calc(var(--fs)*5.5);z-index:3;pointer-events:none;
+  background:linear-gradient(to bottom,var(--paperHi) 0,var(--paper) 28%,color-mix(in srgb,var(--paper) 75%,transparent) 55%,transparent),
+             linear-gradient(to bottom,transparent 40%,rgba(60,40,10,.10) 70%,transparent)}
+#text{position:absolute;left:calc(var(--tl) - 12px);top:0;width:calc(var(--cw)*64);z-index:2;transition:transform .2s cubic-bezier(.3,.7,.3,1);will-change:transform}
+.ln{position:absolute;left:0;top:calc(var(--li)*var(--lh));height:var(--lh);width:100%}
+.c{position:absolute;top:0;left:calc(var(--i)*var(--cw));width:var(--cw);height:var(--lh)}
+.g{position:absolute;inset:0;text-align:center;font:var(--fs)/var(--lh) var(--font),'Courier Prime',monospace;
+  transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:var(--o);color:var(--k0);text-shadow:0 0 .6px currentColor}
+.g.k1{color:var(--k1)}.g.k2{color:var(--k2)}
+.g.new{animation:strike .19s cubic-bezier(.2,.8,.25,1)}
+@keyframes strike{0%{transform:translate(var(--dx),calc(var(--dy) - .5em)) rotate(var(--r)) scale(2.7);opacity:0}30%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1)}}
+.seam{position:absolute;left:calc(var(--cw)*-14);right:calc(var(--cw)*-14);height:0;border-top:1px solid rgba(60,55,45,.22);box-shadow:0 1px 3px rgba(60,55,45,.18)}
+.seam span{position:absolute;right:0;top:4px;font:12px 'Courier Prime',monospace;color:rgba(70,50,20,.55)}
+.caret{position:absolute;left:calc(var(--cc)*var(--cw));top:calc(var(--cl)*var(--lh) + var(--lh)*.74);width:var(--cw);height:2px;background:var(--k0);opacity:.32;animation:blink 1.1s steps(1) infinite}
+.ghost{position:absolute;left:calc(var(--cc)*var(--cw));top:calc(var(--cl)*var(--lh));font:var(--fs)/var(--lh) var(--font),monospace;color:var(--k0);opacity:.4;white-space:pre}
+@keyframes blink{50%{opacity:0}}
+.typing .caret{animation:none}
+.lampx{position:absolute;left:0;top:0;width:0;height:100%;z-index:1;pointer-events:none;transition:transform 70ms linear}
+.vig{position:absolute;left:-4000px;width:8000px;top:calc(var(--railY) - var(--paperTop) - var(--fs)*4 - 2500px);height:5000px;
+  background:radial-gradient(ellipse calc(var(--fs)*30) calc(var(--fs)*21) at 50% 50%,rgba(6,6,6,0) 0,rgba(6,6,6,.12) 38%,rgba(6,6,6,.34) 72%,rgba(6,6,6,.44) 100%)}
+.cone{position:absolute;left:calc(var(--fs)*-18);bottom:calc(var(--fs)*1.2);width:calc(var(--fs)*36);height:calc(var(--fs)*21);mix-blend-mode:soft-light;
+  background:radial-gradient(ellipse 52% 100% at 50% 100%,rgba(255,255,255,1) 0,rgba(235,242,255,.85) 30%,rgba(225,235,255,.35) 62%,transparent 85%);
+  -webkit-mask:conic-gradient(from -54deg at 50% 100%,transparent 0deg,#000 16deg,#000 92deg,transparent 108deg,transparent 360deg);
+          mask:conic-gradient(from -54deg at 50% 100%,transparent 0deg,#000 16deg,#000 92deg,transparent 108deg,transparent 360deg)}
+.cone2{mix-blend-mode:screen;opacity:.22}
+body[data-light=acesa] .vig,body[data-light=acesa] .cone{display:none}
+#lamp.hit .cone{filter:brightness(1.25)}
+.rail{position:absolute;left:0;right:0;top:calc(var(--railY) - 7px);height:14px;z-index:5;
+  background:linear-gradient(#3b3b3b 0,#d9d9d6 22%,#f4f4f0 32%,#9c9c98 50%,#3a3a38 74%,#6d6d6a 100%);box-shadow:0 6px 10px rgba(0,0,0,.7)}
+.stop{position:absolute;top:calc(var(--railY) - 11px);width:3px;height:9px;background:#8d877a;border-radius:1px;z-index:6;opacity:.7}
+#guide{position:absolute;left:0;top:calc(var(--railY) - var(--fs)*2.6);width:calc(var(--fs)*5.6);height:calc(var(--fs)*3.05);z-index:7;margin-left:calc(var(--fs)*-2.8);transition:transform 70ms linear;filter:drop-shadow(0 4px 4px rgba(0,0,0,.6))}
+#guide svg{width:100%;height:100%;display:block}
+#guide.hit svg{animation:hit .09s ease-out}
+@keyframes hit{50%{transform:translateY(-6%)}}
+.ret #guide,.ret .lampx{transition:transform .42s cubic-bezier(.55,.05,.25,1)}
+.base{position:absolute;left:0;right:0;top:calc(var(--railY) + 7px);bottom:0;background:linear-gradient(#1c1b19,#0e0d0c 45%,#070707)}
+.bar{position:absolute;left:0;right:0;bottom:0;height:calc(var(--bot) - 7px);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 max(18px,3vw);z-index:8;transition:opacity .5s;cursor:default}
+.typing .bar{opacity:.14}
+.status{font-size:13px;color:#857a64;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status b{color:#b6a682;font-weight:400}
+.btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+button{font:14px/1 'Courier Prime',monospace;color:#cbbd9c;background:#161513;border:1px solid #3a352c;border-radius:999px;padding:0 16px;min-height:40px;cursor:pointer}
+button:hover{border-color:#6b5f48;color:#efe2c1}
+button:focus-visible{outline:2px solid #d8c08a;outline-offset:2px}
+button[aria-pressed=true]{background:#d9c79d;color:#17140f;border-color:#d9c79d}
+#panel{position:absolute;right:max(18px,3vw);bottom:calc(var(--bot) + 14px);width:min(380px,calc(100vw - 36px));z-index:20;background:#141311f2;border:1px solid #3a352c;border-radius:16px;padding:18px;display:none;box-shadow:0 20px 50px rgba(0,0,0,.6);cursor:default}
+#panel.open{display:block}
+#panel{max-height:calc(var(--railY) - 24px);overflow:auto}
+.row{display:flex;align-items:center;gap:10px;margin-top:8px}.row span{width:6.5em;flex:none;font-size:13px;color:#8d826b}
+#panel h3,#drawer h3{margin:0 0 12px;font:700 17px/1.2 'Courier Prime',monospace;color:#e5d6b2}
+.grp{margin:0 0 14px}
+.grp label{display:block;font-size:13px;color:#8d826b;margin-bottom:6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-height:34px;padding:0 12px;font-size:13px}
+input[type=range]{width:100%;accent-color:#d9c79d}
+.note{font-size:13px;color:#7d735f;margin:4px 0 0}
+#drawerWrap{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30;display:none;align-items:center;justify-content:center;padding:16px;cursor:default}
+#drawerWrap.open{display:flex}
+#drawer{width:min(560px,100%);max-height:80vh;overflow:auto;background:#141311;border:1px solid #3a352c;border-radius:18px;padding:20px}
+.doc{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid #2a2620}
+.doc .t{flex:1;color:#e5d6b2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc .m{display:block;font-size:13px;color:#7d735f}
+.doc.cur .t{color:#f3e2b5}
+.doc button{min-height:34px;padding:0 12px;font-size:13px}
+.empty{color:#7d735f}
+#hint{position:absolute;left:50%;top:calc(var(--paperTop) + 40%);transform:translateX(-50%);z-index:9;background:#0d0c0bdd;color:#e5d6b2;border-radius:999px;padding:10px 18px;font-size:14px;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
+.blur #hint{opacity:1}.panel-open #hint{opacity:0}
+#intro{position:absolute;z-index:2;left:calc(var(--tl) - 12px);top:calc(var(--railY) - var(--paperTop) - var(--lh)*6.4);width:calc(var(--cw)*64);color:var(--k0);pointer-events:none;transition:opacity .4s}
+#intro h1{margin:0;font:calc(var(--fs)*3) /1.05 var(--font),monospace;opacity:.82}
+#intro p{margin:.5em 0 0;font:calc(var(--fs)*.8)/1.5 'Courier Prime',monospace;opacity:.6;max-width:44ch}
+#intro.gone{opacity:0}
+#toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#e5d6b2;color:#17140f;border-radius:999px;padding:8px 16px;font-size:14px;z-index:40;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.on{opacity:1}
+#ta{position:fixed;left:50%;bottom:0;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0;resize:none}
+@media(max-width:600px){.status{display:none}.bar{justify-content:center}button{padding:0 12px;font-size:13px}}
+@media(prefers-reduced-motion:reduce){.g.new,#guide.hit svg{animation:none}#text,.lampx,#guide,.ret #guide,.ret .lampx{transition:none}}
+</style>
+</head>
+<body data-paper="amarelada" data-light="foco">
+<div id="stage">
+  <div class="back"></div>
+  <div class="mark"><b>Datilove</b> &middot; máquina de escrever</div>
+  <div id="paper">
+    <div class="bend"></div>
+    <div id="intro"><h1>Datilove</h1><p>Use o teclado do seu Mac. Enter devolve o carro, o sino toca perto da margem. Role o mouse para reler a folha.</p></div>
+    <div id="text"><div id="seams"></div><div id="lines"></div><div class="caret" id="caret"></div><div class="ghost" id="ghost"></div></div>
+    <div id="lamp" class="lampx"><div class="cone"></div><div class="cone cone2"></div></div><div id="shade" class="lampx" style="z-index:4"><div class="vig"></div></div>
+  </div>
+  <div class="base"></div>
+  <div class="rail"></div>
+  <div class="stop" id="stopL"></div><div class="stop" id="stopR"></div>
+  <div id="guide" aria-hidden="true">
+    <svg viewBox="0 0 112 61">
+      <defs>
+        <linearGradient id="mb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e7e2d4"/><stop offset=".35" stop-color="#b3ad9f"/><stop offset=".7" stop-color="#77726a"/><stop offset="1" stop-color="#4a4640"/></linearGradient>
+        <linearGradient id="mp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6d685f"/><stop offset=".45" stop-color="#efeadc"/><stop offset="1" stop-color="#6d685f"/></linearGradient>
+        <radialGradient id="rv" cx=".35" cy=".35" r=".7"><stop offset="0" stop-color="#f3efe4"/><stop offset="1" stop-color="#57534c"/></radialGradient>
+      </defs>
+      <path d="M36 20 L44 36 L48 36 L42 18 Z" fill="url(#mp)"/>
+      <path d="M76 20 L68 36 L64 36 L70 18 Z" fill="url(#mp)"/>
+      <rect x="52.5" y="12" width="7" height="25" fill="url(#mp)"/>
+      <rect x="44" y="7" width="24" height="6" rx="1.5" fill="url(#mp)"/>
+      <rect x="3" y="34" width="106" height="24" rx="12" fill="url(#mb)" stroke="#2f2c28" stroke-width=".8"/>
+      <path d="M10 37 H102" stroke="#fff" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="24" cy="47" r="3" fill="url(#rv)"/><circle cx="88" cy="47" r="3" fill="url(#rv)"/>
+      <circle cx="56" cy="47" r="4" fill="url(#rv)"/><path d="M53.2 47 H58.8" stroke="#3b3833" stroke-width="1.1"/>
+    </svg>
+  </div>
+  <div id="hint">Clique na folha para datilografar</div>
+  <div class="bar" id="bar">
+    <div class="status" id="status"></div>
+    <div class="btns">
+      <button id="bAmb" aria-pressed="false">Ambiente</button>
+      <button id="bDrawer">Gaveta</button>
+      <button id="bNew">Folha nova</button>
+      <button id="bCopy">Copiar texto</button>
+      <button id="bSet" aria-expanded="false">Ajustes</button>
+    </div>
+  </div>
+  <div id="panel" role="dialog" aria-label="Ajustes">
+    <h3>Ajustes</h3>
+    <div class="grp"><label>Som da máquina</label><div class="seg" data-k="sound"><button data-v="1">Ligado</button><button data-v="0">Desligado</button></div>
+      <div class="row"><span>Volume</span><input type="range" id="vol" min="0" max="1" step="0.05" aria-label="Volume da máquina"></div></div>
+    <div class="grp"><label>Ambiente: pad e natureza</label><div class="seg" data-k="amb"><button data-v="1">Ligado</button><button data-v="0">Desligado</button></div>
+      <div class="row"><span>Pad</span><input type="range" id="padVol" min="0" max="1" step="0.05" aria-label="Volume do pad"></div>
+      <div class="row"><span>Natureza</span><input type="range" id="natVol" min="0" max="1" step="0.05" aria-label="Volume da natureza"></div>
+      <div class="seg" data-k="nature" style="margin-top:10px"><button data-v="floresta">Floresta e riacho</button><button data-v="chuva">Chuva</button><button data-v="nenhuma">Só o pad</button></div></div>
+    <div class="grp"><label>Tipo</label><div class="seg" data-k="font"><button data-v="Special Elite">Special Elite</button><button data-v="Courier Prime">Courier Prime</button><button data-v="Cutive Mono">Cutive Mono</button></div></div>
+    <div class="grp"><label>Papel</label><div class="seg" data-k="paper"><button data-v="amarelada">Clara</button><button data-v="creme">Creme</button><button data-v="velha">Envelhecida</button><button data-v="branca">Branca</button></div></div>
+    <div class="grp"><label>Fita (cor da tinta)</label><div class="seg" data-k="ink"><button data-v="0">Preta</button><button data-v="1">Azul</button><button data-v="2">Vermelha</button></div></div>
+    <div class="grp"><label>Luz</label><div class="seg" data-k="light"><button data-v="foco">Foco na guia</button><button data-v="acesa">Folha toda acesa</button></div></div>
+    <div class="grp"><label>Datilografia</label><div class="seg" data-k="mode"><button data-v="moderna">Moderna</button><button data-v="fiel">Fiel à máquina</button></div>
+      <p class="note">Fiel: o retrocesso não apaga (a letra é sobreposta), Enter só avança a linha e o carro trava na margem.</p></div>
+  </div>
+</div>
+<div id="drawerWrap"><div id="drawer" role="dialog" aria-label="Gaveta"><h3>Gaveta de folhas</h3><div id="docs"></div><div style="margin-top:14px;text-align:right"><button id="bClose">Fechar</button></div></div></div>
+<div id="toast"></div>
+<textarea id="ta" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Datilografar"></textarea>
+<script>
+{
+const COLS=64, LPP=33, KEY='datilove.v1';
+const $=id=>document.getElementById(id);
+const shade=document.getElementById('shade'),stage=$('stage'),textEl=$('text'),linesEl=$('lines'),seamsEl=$('seams'),caret=$('caret'),ghost=$('ghost'),guide=$('guide'),lamp=$('lamp'),ta=$('ta'),intro=$('intro');
+const body=document.body,rootS=document.documentElement.style;
+let fs=20,cw=12,lh=38,textLeft=200,baseY=400,view=0,L=0,C=0,lines=[[]],doc=null,words=0;
+const S={sound:'1',vol:.6,font:'Special Elite',paper:'amarelada',ink:'0',light:'foco',mode:'moderna',amb:'1',padVol:.55,natVol:.5,nature:'floresta'};
+let store={docs:[],cur:null};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.docs)){store=s;Object.assign(S,s.settings||{})}}catch(e){}
+
+/* ---------- sound (synthesised, no files) ---------- */
+let ac=null,master=null,noise=null;
+function audio(){
+  if(ac){if(ac.state==='suspended')ac.resume().catch(()=>{});return ac}
+  try{ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=S.vol;master.connect(ac.destination);
+    noise=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}catch(e){ac=null}
+  if(ac)setTimeout(ambSync,0);
+  return ac}
+const on=()=>S.sound==='1'&&audio();
+function nz(t,dur,type,freq,q,gain,att){const s=ac.createBufferSource();s.buffer=noise;const f=ac.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;
+  const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gain,t+(att||.001));g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  s.connect(f);f.connect(g);g.connect(master);s.start(t,Math.random()*.6);s.stop(t+dur+.03);return f}
+function tone(t,f0,f1,dur,gain,type){const o=ac.createOscillator();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  const g=ac.createGain();g.gain.setValueAtTime(gain,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.03)}
+const snd={
+  key(){if(!on())return;const t=ac.currentTime,v=.8+Math.random()*.35;nz(t,.045,'bandpass',2100+Math.random()*1500,1.4,.9*v);nz(t,.012,'highpass',5600,.7,.45*v);tone(t,200,70,.06,.5*v,'triangle');nz(t+.02,.03,'bandpass',1150,2,.22*v)},
+  space(){if(!on())return;const t=ac.currentTime;nz(t,.085,'bandpass',780,1,.7);tone(t,140,52,.1,.55,'triangle');nz(t,.02,'highpass',4200,.7,.18)},
+  back(){if(!on())return;const t=ac.currentTime;nz(t,.03,'bandpass',3300,3,.45);tone(t,320,170,.035,.2,'triangle')},
+  bell(){if(!on())return;const t=ac.currentTime;[[2380,.3,1.6],[4790,.11,1.1],[6230,.05,.7]].forEach(([f,g,d])=>tone(t,f,0,d,g))},
+  ret(){if(!on())return;const t=ac.currentTime;for(let i=0;i<6;i++)nz(t+i*.03,.02,'bandpass',2700+Math.random()*900,4,.34);
+    nz(t+.04,.34,'lowpass',950,.8,.2,.06);nz(t+.4,.06,'bandpass',900,1,.8);tone(t+.4,160,58,.11,.55,'triangle')},
+  feed(){if(!on())return;const t=ac.currentTime;nz(t,.025,'bandpass',3000,4,.34);nz(t+.035,.025,'bandpass',3300,4,.28)},
+  lock(){if(!on())return;const t=ac.currentTime;tone(t,110,80,.05,.35,'square');nz(t,.03,'lowpass',600,1,.4)},
+  sheet(){if(!on())return;const t=ac.currentTime;const f=nz(t,.75,'bandpass',600,.6,.32,.18);f.frequency.setValueAtTime(600,t);f.frequency.linearRampToValueAtTime(3200,t+.65)}
+};
+
+/* ---------- ambient: soaking pad + nature (synthesised) ---------- */
+const A={on:false,bus:null,padG:null,natG:null,rev:null,loop:0,layer:null,chord:null,cur:0,ci:0,tChord:0,tNote:0,tBird:0,tDrop:0,tBab:0,nb:null,bab:[]};
+const mtof=n=>440*Math.pow(2,(n-69)/12);
+const CH=[[50,57,62,64,66,69],[47,54,59,62,66,69],[43,50,57,59,62,66],[45,52,57,59,61,64]];
+const MEL=[[74,76,78,81,86],[71,74,78,81,83],[74,79,81,83,86],[76,78,81,85,88]];
+function ambNoise(){if(A.nb)return A.nb;const len=ac.sampleRate*4,b=ac.createBuffer(2,len,ac.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=Math.random()*2-1}return A.nb=b}
+function impulse(){const sr=ac.sampleRate,len=sr*5,b=ac.createBuffer(2,len,sr);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2)}return b}
+function ambSync(){if(!ac)return;if(S.amb==='1'&&!A.on)ambStart();else if(S.amb!=='1'&&A.on)ambStop();$('bAmb').setAttribute('aria-pressed',S.amb==='1')}
+function ambStart(){
+  if(A.on||!ac)return;if(ac.state==='suspended')ac.resume().catch(()=>{});A.on=true;const t=ac.currentTime;
+  A.bus=ac.createGain();A.bus.gain.setValueAtTime(0,t);A.bus.gain.linearRampToValueAtTime(1.6,t+6);A.bus.connect(ac.destination);
+  A.rev=ac.createConvolver();A.rev.buffer=impulse();const rg=ac.createGain();rg.gain.value=.85;A.rev.connect(rg);rg.connect(A.bus);
+  A.padG=ac.createGain();A.padG.gain.value=S.padVol;A.padG.connect(A.bus);const ps=ac.createGain();ps.gain.value=.75;A.padG.connect(ps);ps.connect(A.rev);
+  A.natG=ac.createGain();A.natG.gain.value=S.natVol;A.natG.connect(A.bus);const ns=ac.createGain();ns.gain.value=.12;A.natG.connect(ns);ns.connect(A.rev);
+  A.ci=0;A.tChord=t+.05;A.tNote=t+5;A.tBird=t+3;A.tDrop=t;A.tBab=t;
+  buildNature();A.loop=setInterval(ambTick,250);ambTick()}
+function ambStop(){if(!A.on)return;A.on=false;clearInterval(A.loop);const bus=A.bus,ch=A.chord,ly=A.layer,t=ac.currentTime;
+  bus.gain.cancelScheduledValues(t);bus.gain.setValueAtTime(bus.gain.value,t);bus.gain.linearRampToValueAtTime(0,t+1.5);
+  setTimeout(()=>{if(ch)ch.stop(ac.currentTime,.05);if(ly)ly.stop();try{bus.disconnect()}catch(e){}},1700);A.chord=null;A.layer=null;A.bab=[]}
+function playChord(notes,t){
+  const g=ac.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(1,t+6);
+  const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=680;f.Q.value=.4;
+  const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=.04+Math.random()*.03;lg.gain.value=260;lfo.connect(lg);lg.connect(f.frequency);
+  f.connect(g);g.connect(A.padG);const os=[lfo];
+  notes.forEach(n=>[-7,7].forEach(dt=>{const o=ac.createOscillator();o.type='sawtooth';o.frequency.value=mtof(n);o.detune.value=dt+Math.random()*4-2;const og=ac.createGain();og.gain.value=.026;o.connect(og);og.connect(f);os.push(o)}));
+  const b=ac.createOscillator();b.frequency.value=mtof(notes[0]-12);const bg=ac.createGain();bg.gain.value=.08;b.connect(bg);bg.connect(g);os.push(b);
+  notes.slice(-2).forEach(n=>{const o=ac.createOscillator();o.frequency.value=mtof(n+12);const og=ac.createGain();og.gain.value=.012;const tr=ac.createOscillator(),tg=ac.createGain();tr.frequency.value=.15+Math.random()*.2;tg.gain.value=.009;tr.connect(tg);tg.connect(og.gain);o.connect(og);og.connect(g);os.push(o,tr)});
+  os.forEach(o=>o.start(t));
+  return{stop(at,tc){tc=tc||2.6;g.gain.setTargetAtTime(0,at,tc);os.forEach(o=>{try{o.stop(at+tc*6)}catch(e){}})}}}
+function softNote(t){const set=MEL[A.cur];const n=set[Math.floor(Math.random()*set.length)];const v=.028+Math.random()*.03;
+  [[1,'sine',v],[2,'sine',v*.22],[3,'triangle',v*.06]].forEach(([m,ty,gv])=>{const o=ac.createOscillator();o.type=ty;o.frequency.value=mtof(n)*m;const g=ac.createGain();
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(gv,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+3.6/m+.4);o.connect(g);g.connect(A.padG);o.start(t);o.stop(t+4.2)})}
+function bird(t){const p=ac.createStereoPanner();p.pan.value=Math.random()*1.6-.8;p.connect(A.layer.out);const base=2600+Math.random()*1900,k=2+Math.floor(Math.random()*4),up=Math.random()<.5,v=.02+Math.random()*.025;
+  for(let i=0;i<k;i++){const s=t+i*(.09+Math.random()*.08),d=.05+Math.random()*.07,f0=base*(1+Math.random()*.15);const o=ac.createOscillator();
+    o.frequency.setValueAtTime(f0,s);o.frequency.exponentialRampToValueAtTime(up?f0*1.35:f0*.7,s+d);const g=ac.createGain();g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.01);g.gain.exponentialRampToValueAtTime(.0001,s+d);
+    o.connect(g);g.connect(p);o.start(s);o.stop(s+d+.02)}}
+function drop(t){const s=ac.createBufferSource();s.buffer=ambNoise();const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=1800+Math.random()*4200;f.Q.value=6;
+  const g=ac.createGain();g.gain.setValueAtTime(.015+Math.random()*.045,t);g.gain.exponentialRampToValueAtTime(.0001,t+.03);const p=ac.createStereoPanner();p.pan.value=Math.random()*2-1;
+  s.connect(f);f.connect(g);g.connect(p);p.connect(A.layer.out);s.start(t,Math.random()*3,.04)}
+function buildNature(){
+  if(A.layer)A.layer.stop();A.bab=[];const t=ac.currentTime,out=ac.createGain();out.gain.setValueAtTime(0,t);out.gain.linearRampToValueAtTime(1,t+2.5);out.connect(A.natG);
+  const srcs=[];const src=()=>{const s=ac.createBufferSource();s.buffer=ambNoise();s.loop=true;s.start(t,Math.random()*3);srcs.push(s);return s};
+  const chain=(type,freq,q,gain,s)=>{const f=ac.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;const g=ac.createGain();g.gain.value=gain;(s||src()).connect(f);f.connect(g);g.connect(out);return[f,g]};
+  const wind=(base,depth)=>{const[f,g]=chain('lowpass',420,.8,base);const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=.06;lg.gain.value=depth;l.connect(lg);lg.connect(g.gain);l.start(t);srcs.push(l)};
+  if(S.nature==='floresta'){const a=chain('bandpass',900,.9,.2),b=chain('bandpass',2400,2,.06);chain('lowpass',220,.7,.1);wind(.025,.02);A.bab=[a[0],b[0]]}
+  else if(S.nature==='chuva'){const s=src(),f=ac.createBiquadFilter();f.type='highpass';f.frequency.value=900;s.connect(f);chain('lowpass',7000,.5,.13,f);chain('lowpass',280,.7,.09);wind(.03,.025)}
+  A.layer={out,stop(){const n=ac.currentTime;out.gain.cancelScheduledValues(n);out.gain.setValueAtTime(out.gain.value,n);out.gain.linearRampToValueAtTime(0,n+.8);setTimeout(()=>{srcs.forEach(x=>{try{x.stop()}catch(e){}});out.disconnect()},900)}}}
+function ambTick(){if(!A.on)return;const now=ac.currentTime,ahead=now+1.6;
+  if(A.tChord<ahead){const t=Math.max(A.tChord,now);if(A.chord)A.chord.stop(t+.5);A.cur=A.ci%CH.length;A.chord=playChord(CH[A.cur],t);A.ci++;A.tChord=t+15}
+  A.tNote=Math.max(A.tNote,now);while(A.tNote<ahead){softNote(A.tNote);A.tNote+=2.8+Math.random()*5}
+  if(S.nature==='floresta'){A.tBird=Math.max(A.tBird,now);while(A.tBird<ahead){bird(A.tBird);A.tBird+=4+Math.random()*10}
+    A.tBab=Math.max(A.tBab,now);while(A.tBab<ahead){if(A.bab.length){A.bab[0].frequency.setTargetAtTime(500+Math.random()*900,A.tBab,.05);A.bab[1].frequency.setTargetAtTime(1800+Math.random()*1600,A.tBab,.04)}A.tBab+=.12+Math.random()*.1}}
+  if(S.nature==='chuva'){A.tDrop=Math.max(A.tDrop,now);while(A.tDrop<ahead){drop(A.tDrop);A.tDrop+=.02+Math.random()*.09}}}
+
+/* ---------- storage ---------- */
+let saveT=0;
+function save(now){clearTimeout(saveT);saveT=setTimeout(()=>{
+  if(doc){doc.lines=lines;doc.L=L;doc.C=C;doc.updated=Date.now();doc.words=words}
+  store.cur=doc&&doc.id;store.settings=S;
+  try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}},now?0:350)}
+function newDoc(){doc={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),lines:[[]],L:0,C:0,updated:Date.now(),words:0};store.docs.unshift(doc);return doc}
+function openDoc(d){doc=d;lines=Array.isArray(d.lines)&&d.lines.length?d.lines:[[]];L=Math.min(d.L||0,lines.length-1);C=Math.min(d.C||0,COLS);view=0;countWords();renderAll();place()}
+
+/* ---------- text model ---------- */
+const rnd=(a,b)=>Math.round((a+Math.random()*(b-a))*1000)/1000;
+function glyph(ch){const worn=Math.random()<.08;return[ch,rnd(-1.1,1.1),rnd(-.035,.035),rnd(-.045,.045),worn?rnd(.5,.68):rnd(.8,1),+S.ink]}
+function cellCh(cell){return cell&&cell.length?cell[cell.length-1][0]:' '}
+function plain(){const out=lines.map(l=>l.map(cellCh).join('').replace(/\s+$/,''));while(out.length&&!out[out.length-1])out.pop();return out.join('\n')}
+function countWords(){const m=plain().match(/\S+/g);words=m?m.length:0}
+function trimEnd(l){while(l.length&&!l[l.length-1].length)l.pop();return l}
+
+/* ---------- rendering ---------- */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function cellsHtml(l,newCol){let h='';for(let i=0;i<l.length;i++){const cell=l[i];if(!cell||!cell.length)continue;
+  h+=`<span class="c" style="--i:${i}">`+cell.map((g,j)=>`<span class="g k${g[5]|0}${i===newCol&&j===cell.length-1?' new':''}" style="--r:${g[1]}deg;--dx:${g[2]}em;--dy:${g[3]}em;--o:${g[4]}">${esc(g[0])}</span>`).join('')+'</span>'}
+  return h}
+function renderAll(){linesEl.innerHTML=lines.map((l,i)=>`<div class="ln" style="--li:${i}">${cellsHtml(l)}</div>`).join('');renderSeams();intro.classList.toggle('gone',!!plain())}
+function renderLine(i,newCol){const el=linesEl.children[i];if(!el){renderAll();return}el.innerHTML=cellsHtml(lines[i],newCol)}
+function renderSeams(){let h='';const n=Math.floor((Math.max(lines.length,L+1)+2)/LPP);for(let k=1;k<=n;k++)h+=`<div class="seam" style="top:${k*LPP*lh}px"><span>folha ${k+1}</span></div>`;seamsEl.innerHTML=h}
+function place(){
+  textEl.style.transform=`translateY(${baseY-(L-view)*lh}px)`;
+  const gx=textLeft+Math.min(C,COLS)*cw+cw/2;
+  guide.style.transform=`translateX(${gx}px)`;lamp.style.transform=shade.style.transform=`translateX(${gx-12}px)`;
+  caret.style.setProperty('--cc',Math.min(C,COLS-1));caret.style.setProperty('--cl',L);ghost.style.setProperty('--cc',C);ghost.style.setProperty('--cl',L);
+  $('status').innerHTML=`Folha <b>${Math.floor(L/LPP)+1}</b> · Linha <b>${L%LPP+1}</b> · Coluna <b>${C+1}</b> · <b>${words}</b> ${words===1?'palavra':'palavras'}`}
+function layout(){
+  const W=innerWidth,H=innerHeight;const bot=Math.round(Math.max(92,Math.min(140,H*.15)));
+  const railY=H-bot,paperTop=Math.round(Math.max(44,Math.min(150,H*.13)));const pw=W-24;
+  fs=Math.min(21,Math.max(7,(pw-2*Math.max(20,pw*.07))/(COLS*.6)));cw=fs*.6;lh=fs*1.9;textLeft=12+(pw-COLS*cw)/2;baseY=(railY-paperTop)-2.6*lh;
+  rootS.setProperty('--fs',fs+'px');rootS.setProperty('--cw',cw+'px');rootS.setProperty('--lh',lh+'px');rootS.setProperty('--paperTop',paperTop+'px');
+  rootS.setProperty('--railY',railY+'px');rootS.setProperty('--bot',bot+'px');rootS.setProperty('--tl',textLeft+'px');
+  $('stopL').style.left=(textLeft-1)+'px';$('stopR').style.left=(textLeft+COLS*cw-2)+'px';renderSeams();place()}
+
+/* ---------- typing ---------- */
+let typT=0;
+function typingUI(){body.classList.add('typing');clearTimeout(typT);typT=setTimeout(()=>body.classList.remove('typing'),2500)}
+function strike(){for(const el of[guide,lamp]){el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit')}}
+function carriage(){stage.classList.add('ret');clearTimeout(carriage.t);carriage.t=setTimeout(()=>stage.classList.remove('ret'),440)}
+function wrapWord(){
+  const l=lines[L];let s=-1;for(let i=Math.min(l.length,COLS)-1;i>=COLS-22&&i>=0;i--)if(!l[i].length){s=i;break}
+  let carry=[];if(s>=0){carry=l.splice(s+1);l.length=s;trimEnd(l)}
+  lines.splice(L+1,0,carry);L++;C=carry.length;carriage();snd.ret();if(L%LPP===0)setTimeout(snd.sheet,450)}
+function typeChar(ch,quiet){
+  view=0;
+  if(C>=COLS){if(S.mode==='fiel'){if(!quiet)snd.lock();return}if(ch===' '){doReturn(quiet);return}wrapWord();if(!quiet){renderAll()}}
+  const l=lines[L],sp=ch===' ';let structural=false;
+  if(S.mode==='fiel'){while(l.length<=C)l.push([]);if(!sp)l[C].push(glyph(ch))}
+  else{while(l.length<C)l.push([]);l.splice(C,0,sp?[]:[glyph(ch)]);
+    if(l.length>COLS){const extra=trimEnd(l.splice(COLS));lines.splice(L+1,0,extra);structural=true}}
+  const col=C;C++;
+  if(quiet)return;
+  if(structural)renderAll();else renderLine(L,col);
+  if(sp)snd.space();else snd.key();
+  if(C===COLS-6)snd.bell();
+  strike();intro.classList.add('gone');countWords();place();save();typingUI()}
+function doReturn(quiet){
+  view=0;
+  if(S.mode==='fiel'){L++;if(L>=lines.length)lines.push([])}
+  else{const rest=lines[L].splice(C);trimEnd(lines[L]);lines.splice(L+1,0,rest);L++}
+  C=0;if(quiet)return;
+  carriage();snd.ret();if(L%LPP===0)setTimeout(snd.sheet,450);renderAll();place();save();typingUI()}
+function backspace(){
+  view=0;
+  if(S.mode==='fiel'){if(C>0)C--;else if(L>0){L--;C=Math.min(COLS,lines[L].length)}snd.back();place();save();return}
+  if(C>0){const l=lines[L];if(C<=l.length)l.splice(C-1,1);C--;renderLine(L)}
+  else if(L>0){const prev=lines[L-1],cur=lines[L];C=prev.length;
+    if(prev.length+cur.length<=COLS){prev.push(...cur);lines.splice(L,1)}L--;renderAll()}
+  snd.back();countWords();place();save();typingUI()}
+function move(dx,dy){view=0;
+  if(dx){C=Math.max(0,Math.min(COLS,C+dx));snd.back()}
+  if(dy<0&&L>0){L--;snd.feed()}
+  if(dy>0){if(L<lines.length-1){L++;snd.feed()}else if(S.mode==='fiel'){lines.push([]);L++;snd.feed();renderAll()}}
+  place();save()}
+function flush(){const v=ta.value;ta.value='';if(!v)return;
+  if(v.length>3){for(const ch of v){if(ch==='\n'||ch==='\r')doReturn(true);else typeChar(ch==='\t'?' ':ch,true)}renderAll();countWords();snd.ret();place();save();return}
+  for(const ch of v){if(ch==='\n')doReturn();else typeChar(ch)}}
+
+ta.addEventListener('input',e=>{if(e.isComposing)return;flush()});
+ta.addEventListener('compositionupdate',e=>{ghost.textContent=e.data||''});
+ta.addEventListener('compositionend',()=>{ghost.textContent='';setTimeout(flush,0)});
+ta.addEventListener('paste',e=>{e.preventDefault();const t=(e.clipboardData&&e.clipboardData.getData('text'))||'';ta.value=t.replace(/\r\n?/g,'\n');flush()});
+ta.addEventListener('focus',()=>body.classList.remove('blur'));
+ta.addEventListener('blur',()=>setTimeout(()=>{if(document.activeElement!==ta&&!drawerOpen())body.classList.add('blur')},150));
+
+const panel=$('panel'),dw=$('drawerWrap');
+const drawerOpen=()=>dw.classList.contains('open');
+document.addEventListener('keydown',e=>{
+  if(drawerOpen()){if(e.key==='Escape')closeDrawer();return}
+  if(e.key==='Escape'){togglePanel();e.preventDefault();return}
+  if(e.metaKey||e.ctrlKey)return;
+  if(e.isComposing||e.keyCode===229)return;
+  if(e.target&&e.target.type==='range')return;
+  const k=e.key;
+  const act={Enter:()=>doReturn(),Backspace:backspace,Tab:()=>{for(let i=0;i<4;i++)typeChar(' ')},ArrowLeft:()=>move(-1,0),ArrowRight:()=>move(1,0),ArrowUp:()=>move(0,-1),ArrowDown:()=>move(0,1)}[k];
+  if(act){e.preventDefault();audio();act();if(document.activeElement!==ta)ta.focus();return}
+  if(e.target!==ta){ta.focus();if(k.length===1){e.preventDefault();audio();typeChar(k)}}
+  else audio();
+});
+stage.addEventListener('mousedown',e=>{if(e.target.closest('button,#panel,input'))return;e.preventDefault();ta.focus();audio()});
+stage.addEventListener('mousemove',()=>{if(body.classList.contains('typing')){clearTimeout(typT);body.classList.remove('typing')}});
+let wheelAcc=0;
+stage.addEventListener('wheel',e=>{if(e.target.closest('#panel'))return;e.preventDefault();wheelAcc+=e.deltaY;const step=Math.trunc(wheelAcc/40);if(!step)return;wheelAcc-=step*40;
+  view=Math.max(-(lines.length-1-L),Math.min(L,view-step));place()},{passive:false});
+
+/* ---------- controls ---------- */
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1800)}
+function togglePanel(force){const o=force!==undefined?force:!panel.classList.contains('open');panel.classList.toggle('open',o);body.classList.toggle('panel-open',o);$('bSet').setAttribute('aria-expanded',o);if(!o)ta.focus()}
+function apply(){body.dataset.paper=S.paper;body.dataset.light=S.light;rootS.setProperty('--font',`'${S.font}'`);if(master)master.gain.value=S.vol;$('vol').value=S.vol;$('padVol').value=S.padVol;$('natVol').value=S.natVol;
+  if(A.on){A.padG.gain.setTargetAtTime(S.padVol,ac.currentTime,.1);A.natG.gain.setTargetAtTime(S.natVol,ac.currentTime,.1)}
+  if(ac)ambSync();else $('bAmb').setAttribute('aria-pressed',S.amb==='1');
+  document.querySelectorAll('.seg').forEach(seg=>seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(S[seg.dataset.k])===b.dataset.v)))}
+document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=seg.dataset.k,changed=S[k]!==b.dataset.v;S[k]=b.dataset.v;audio();apply();save();if(k==='nature'&&changed&&A.on)buildNature();if(seg.dataset.k==='sound'&&S.sound==='1')snd.key()}));
+$('vol').addEventListener('input',e=>{S.vol=+e.target.value;apply();save()});
+$('vol').addEventListener('change',()=>{audio();snd.key()});
+$('padVol').addEventListener('input',e=>{S.padVol=+e.target.value;audio();apply();save()});
+$('natVol').addEventListener('input',e=>{S.natVol=+e.target.value;audio();apply();save()});
+$('bAmb').addEventListener('click',()=>{S.amb=S.amb==='1'?'0':'1';audio();apply();save();toast(S.amb==='1'?'Ambiente ligado':'Ambiente desligado');ta.focus()});
+$('bSet').addEventListener('click',()=>togglePanel());
+$('bNew').addEventListener('click',()=>{if(!plain()){toast('Esta folha já está em branco');ta.focus();return}save(true);openDoc(newDoc());audio();snd.sheet();save(true);toast('Folha nova no carro');ta.focus()});
+$('bCopy').addEventListener('click',()=>{const t=plain();if(!t){toast('A folha ainda está em branco');ta.focus();return}
+  const fb=()=>{const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}x.remove();toast(ok?'Texto copiado':'Não foi possível copiar');ta.focus()};
+  try{navigator.clipboard.writeText(t).then(()=>{toast('Texto copiado');ta.focus()},fb)}catch(e){fb()}});
+function renderDocs(){const box=$('docs');const list=store.docs.filter(d=>d===doc||(d.lines&&d.lines.some(l=>l.length)));
+  if(!list.length){box.innerHTML='<p class="empty">Nenhuma folha guardada ainda.</p>';return}
+  box.innerHTML=list.map(d=>{const first=(d.lines||[]).map(l=>l.map(cellCh).join('').trim()).find(Boolean)||'Folha em branco';
+    const date=new Date(d.updated||Date.now()).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<div class="doc${d===doc?' cur':''}" data-id="${esc(d.id)}"><div class="t">${esc(first.slice(0,60))}<span class="m">${esc(date)} · ${d.words||0} palavras${d===doc?' · no carro agora':''}</span></div>
+      ${d===doc?'':'<button data-a="open">Abrir</button>'}<button data-a="del">Apagar</button></div>`}).join('')}
+function openDrawer(){save(true);renderDocs();dw.classList.add('open');$('bClose').focus()}
+function closeDrawer(){dw.classList.remove('open');ta.focus()}
+$('bDrawer').addEventListener('click',openDrawer);$('bClose').addEventListener('click',closeDrawer);
+dw.addEventListener('mousedown',e=>{if(e.target===dw)closeDrawer()});
+$('docs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const row=b.closest('.doc');const d=store.docs.find(x=>x.id===row.dataset.id);if(!d)return;
+  if(b.dataset.a==='open'){save(true);openDoc(d);closeDrawer();snd.sheet();save(true)}
+  else if(b.dataset.a==='del'){row.innerHTML=`<div class="t">Apagar esta folha? Não dá para desfazer.</div><button data-a="yes">Apagar</button><button data-a="no">Manter</button>`}
+  else if(b.dataset.a==='no')renderDocs();
+  else if(b.dataset.a==='yes'){store.docs=store.docs.filter(x=>x!==d);if(d===doc)openDoc(store.docs[0]||newDoc());save(true);renderDocs()}});
+
+/* ---------- start ---------- */
+openDoc(store.docs.find(d=>d.id===store.cur)||store.docs[0]||newDoc());
+apply();layout();addEventListener('resize',layout);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>renderAll());
+ta.focus();if(document.activeElement!==ta)body.classList.add('blur');
+}
+</script>
+</body>
+</html>

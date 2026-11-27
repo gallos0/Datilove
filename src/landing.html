@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Datilove — máquina de escrever</title>
+<meta name="description" content="Datilove: uma máquina de escrever para o seu Mac ou Windows. Papel, tinta, som de teclas e um ambiente calmo para escrever.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#050505">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:title" content="Datilove — máquina de escrever">
+<meta property="og:description" content="Escreva como antigamente, no seu Mac ou Windows.">
+<meta property="og:image" content="shot.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet and warm, a writing room at night.
+   IDEA: the product's own desk: a lit sheet in a dark room, and a typed card telling you how to take it home.
+   PICTURE: the real app screenshot, framed like the machine, carrying the first screen.
+   COLOUR and TYPE: black room, paper #f3efe6, pewter accents; Special Elite titles, Courier Prime text.
+   LAYOUT: one centred column; hero with install action, then two install cards (Mac, Windows), then updates. */
+:root{color-scheme:dark;--bg:#070707;--ink:#e9e2d2;--mut:#9c927f;--paper:#f3efe6;--line:#2b2822;--card:#121110}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:radial-gradient(1200px 700px at 50% 10%,#1a1815,var(--bg) 70%) fixed,var(--bg);color:var(--ink);font:17px/1.6 'Courier Prime',ui-monospace,monospace;overflow-x:clip}
+a{color:var(--paper)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 max(5vw,16px)}
+header{display:flex;align-items:center;gap:12px;padding:22px 0}
+header img{width:40px;height:40px}
+header b{font:22px/1 'Special Elite',monospace;color:var(--paper)}
+.hero{text-align:center;padding:clamp(16px,4vw,48px) 0 0}
+h1{font:clamp(40px,6vw,64px)/1.05 'Special Elite',monospace;margin:0;color:var(--paper);text-wrap:balance}
+.lead{max-width:40ch;margin:16px auto 0;color:var(--mut);font-size:18px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:28px 0 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 24px;border-radius:999px;font:700 16px/1 'Courier Prime',monospace;text-decoration:none;cursor:pointer;border:1px solid #4a4438;background:#171512;color:var(--ink)}
+.btn.main{background:var(--paper);color:#15130f;border-color:var(--paper)}
+.btn:hover{border-color:#8f8268}
+.btn:focus-visible{outline:2px solid #e0c98f;outline-offset:3px}
+.hint{color:var(--mut);font-size:14px;margin:12px 0 0;min-height:1.6em}
+.shot{margin:40px auto 0;max-width:1040px;border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 40px 90px rgba(0,0,0,.7),0 0 0 6px #0d0c0b}
+.shot img{display:block;width:100%;height:auto}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:18px;margin:56px 0 0}
+.feat h3{margin:0 0 6px;font:20px/1.2 'Special Elite',monospace;color:var(--paper)}
+.feat p{margin:0;color:var(--mut);font-size:15px}
+h2{font:clamp(30px,4vw,40px)/1.1 'Special Elite',monospace;color:var(--paper);margin:0 0 18px;text-wrap:balance}
+section{padding:72px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px}
+.card h3{margin:0 0 4px;font:24px/1.2 'Special Elite',monospace;color:var(--paper)}
+.card .tag{color:var(--mut);font-size:14px;margin:0 0 14px}
+.card ol{margin:0 0 18px;padding-left:1.3em}
+.card li{margin:0 0 8px}
+.card .alt{border-top:1px solid var(--line);margin-top:18px;padding-top:16px;font-size:15px;color:var(--mut)}
+.card .alt .btn{min-height:44px;font-size:14px;margin-top:10px}
+kbd{font:inherit;background:#221f1a;border:1px solid #3a352c;border-radius:6px;padding:0 6px}
+.card.me{border-color:#6d6250}
+.upd{background:var(--paper);color:#1d1a15;border-radius:18px;padding:clamp(24px,4vw,40px);display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+.upd h2{color:#1d1a15;margin:0 0 8px}
+.upd p{margin:0;max-width:62ch}
+.upd svg{width:72px;height:72px}
+footer{padding:64px 0 40px;color:var(--mut);font-size:14px;text-align:center}
+@media(max-width:600px){.upd{grid-template-columns:1fr}.shot{border-radius:12px}}
+@media(prefers-reduced-motion:no-preference){.shot{animation:rise .9s cubic-bezier(.2,.8,.2,1) both}@keyframes rise{from{opacity:0;transform:translateY(24px)}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><img src="icons/icon-192.png" alt=""><b>Datilove</b></header>
+
+  <div class="hero">
+    <h1>Escreva como antigamente.</h1>
+    <p class="lead">Uma máquina de escrever para o seu Mac ou Windows: folha de papel, som de teclas, sino na margem e um ambiente calmo de fundo.</p>
+    <div class="cta">
+      <button class="btn main" id="install" hidden>Instalar o Datilove</button>
+      <a class="btn main" id="howto" href="#instalar">Instalar no computador</a>
+      <a class="btn" href="{{APP_URL}}">Abrir no navegador</a>
+    </div>
+    <p class="hint" id="hint"></p>
+    <div class="shot"><img src="shot.jpg" alt="O Datilove aberto: uma folha clara iluminada por uma guia de metal sobre um trilho cromado, com uma carta datilografada." width="1920" height="1200"></div>
+  </div>
+
+  <div class="feats">
+    <div class="feat"><h3>Seu teclado é a máquina</h3><p>Cada tecla bate no papel com o som, o peso e a tinta irregular de uma máquina de verdade.</p></div>
+    <div class="feat"><h3>Carro e sino</h3><p>O sino toca perto da margem e o Enter devolve o carro. Há também um modo fiel, sem apagar.</p></div>
+    <div class="feat"><h3>Ambiente para escrever</h3><p>Pads suaves com natureza ao fundo: floresta e riacho ou chuva.</p></div>
+    <div class="feat"><h3>Suas folhas guardadas</h3><p>Tudo fica salvo no seu computador, numa gaveta de folhas. Nada é enviado para a internet.</p></div>
+  </div>
+
+  <section id="instalar">
+    <h2>Instale no seu computador</h2>
+    <div class="cards">
+      <div class="card" id="cMac">
+        <h3>Mac</h3>
+        <p class="tag">macOS 11 ou mais novo</p>
+        <ol>
+          <li>Abra esta página no <b>Chrome</b> ou no <b>Edge</b> e clique em <b>Instalar o Datilove</b> (ou no ícone de instalar na barra de endereço).</li>
+          <li>No <b>Safari</b>: abra o <a href="{{APP_URL}}">Datilove</a> e use <b>Arquivo → Adicionar ao Dock</b>.</li>
+          <li>Pronto: o Datilove aparece no Launchpad e no Dock, como qualquer app.</li>
+        </ol>
+        <div class="alt">Prefere baixar um app?
+          <br>Na primeira vez, o Mac pode bloquear por não ser da App Store. Vá em <b>Ajustes do Sistema → Privacidade e Segurança</b> e clique em <b>Abrir Mesmo Assim</b>.
+          <br><a class="btn" href="downloads/Datilove-Mac.zip" download>Baixar para Mac (.zip)</a>
+        </div>
+      </div>
+      <div class="card" id="cWin">
+        <h3>Windows</h3>
+        <p class="tag">Windows 10 ou 11</p>
+        <ol>
+          <li>Abra esta página no <b>Microsoft Edge</b> ou no <b>Chrome</b>.</li>
+          <li>Clique em <b>Instalar o Datilove</b> (ou no ícone de instalar na barra de endereço).</li>
+          <li>Pronto: o Datilove fica no Menu Iniciar e pode ser fixado na barra de tarefas.</li>
+        </ol>
+        <div class="alt">Prefere baixar?
+          <br>Descompacte e clique duas vezes em <kbd>Datilove.cmd</kbd>. Se o Windows avisar, clique em <b>Mais informações → Executar assim mesmo</b>.
+          <br><a class="btn" href="downloads/Datilove-Windows.zip" download>Baixar para Windows (.zip)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="upd">
+      <svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" fill="#1d1a15"/><path d="M50 30a15 15 0 1 0 1.5 12" fill="none" stroke="#f3efe6" stroke-width="4" stroke-linecap="round"/><path d="M52 20v11H41" fill="none" stroke="#f3efe6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <h2>Sempre a versão mais nova</h2>
+        <p>Quem instala recebe cada melhoria sozinho, sem baixar nada de novo: o Datilove se atualiza toda vez que abre com internet. Sem internet, ele continua funcionando com a última versão.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Datilove · feito para quem gosta de escrever devagar.</footer>
+</div>
+<script>
+{
+  const ua=navigator.userAgent, isMac=/Macintosh|Mac OS X/.test(ua), isWin=/Windows/.test(ua);
+  const isSafari=/Safari/.test(ua)&&!/Chrome|Chromium|Edg\//.test(ua);
+  const btn=document.getElementById('install'),how=document.getElementById('howto'),hint=document.getElementById('hint');
+  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(isMac)document.getElementById('cMac').classList.add('me');
+  if(isWin)document.getElementById('cWin').classList.add('me');
+  if(standalone){hint.textContent='O Datilove já está instalado neste computador.'}
+  else if(isMac&&isSafari){hint.textContent='No Safari: abra o Datilove e use Arquivo → Adicionar ao Dock.'}
+  let deferred=null;
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;btn.hidden=false;how.hidden=true;hint.textContent='Instala em poucos segundos e se atualiza sozinho.'});
+  btn.addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();const r=await deferred.userChoice.catch(()=>null);deferred=null;btn.hidden=true;how.hidden=false;
+    hint.textContent=r&&r.outcome==='accepted'?'Instalado! Procure o Datilove no Launchpad ou no Menu Iniciar.':'Tudo bem. Você pode instalar quando quiser.'});
+  addEventListener('appinstalled',()=>{hint.textContent='Instalado! Procure o Datilove no Launchpad ou no Menu Iniciar.'});
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
